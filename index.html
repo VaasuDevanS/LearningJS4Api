@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <link rel="icon" href="static/favicon.ico">
+    <title> Map showing Fredericton Accidents </title>
+	<meta charset="UTF-8">
+    <meta name="description" content="LearningJS4Api">
+    <meta name="keywords" content="ESRI, AGOL, JS4">
+    <meta name="author" content="Vaasudevan Srinivasan">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<!-- JQuery -->
+	<script
+	  src="https://code.jquery.com/jquery-3.5.1.js"
+	  integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+	  crossorigin="anonymous"></script>
+	
+    <!-- ESRI JS API4 -->
+	<link rel="stylesheet" href="https://js.arcgis.com/4.15/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.15/"></script>
+	
+	<!-- Turf -->
+	<script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+	
+	<!-- My CSS/JS -->
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="functions.js"> </script>
+
+	  
+</head>
+
+<body>
+
+<h3> Map showing Fredericton Accidents (2007 to 2018) </h3>
+
+<div id='map'>
+    <iframe width="600" height="500" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" title="FrederictonAccidents" src="//vaasu.maps.arcgis.com/apps/Embed/index.html?webmap=e7bcc4962a6a47ecaa11c2b526f94946&extent=-66.8358,45.8911,-66.4767,46.0143&home=true&zoom=true&previewImage=true&scale=true&details=true&legend=true&active_panel=details&basemap_gallery=true&disable_scroll=true&theme=dark"></iframe>
+</div>
+
+
+</body>
+</html>
