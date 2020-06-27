@@ -7,13 +7,17 @@ Description: Script with useful CSS styles
 
 
 body {
-	text-align: center;
 	background-color: #F5F5F5;
 }
 
 
 #map {
-    width: 500px;
-	height: 500px;
-	margin-left: 32.5%;
+    width: 550px;
+	height: 550px;
+	float: left;
+}
+
+#content {
+	float: right;
+	padding-right: 330px;
 }

@@ -33,16 +33,28 @@
 <body>
 
 <h3> Map showing Fredericton Accidents (2007 to 2018) </h3>
-
-Select a point and click buffer <br><br>
-<label for="buffervalue">Buffer (in m): </label>
-<input type="text" id="buffervalue" name="buffervalue" value=10>
-
-<button type="button" id="genbuffer">Generate Buffer</button>
-<button type="button" id="clear">Clear</button>
-
-<br><br>
 <div id="map"> </div>
+
+<div id="content">
+
+<ul style="list-style-type:none;">
+  
+  <li>  <!-- Buffer -->
+  
+  1. Select a point and click buffer <br> <br>
+  <label for="buffervalue">Buffer (in m): </label>
+  <input type="text" id="buffervalue" name="buffervalue" value=100>
+  <button type="button" id="genbuffer">Generate Buffer</button>
+  <button type="button" id="clear">Clear</button>
+  
+  </li> <br>
+
+  
+</ul>
+
+
+</div>
+
 
 </body>
 </html>

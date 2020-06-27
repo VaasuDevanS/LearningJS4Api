@@ -38,7 +38,25 @@ view.ui.add(homeBtn, "top-left");
 
 // Accident points
 var accidents = new FeatureLayer({
-	url: "https://services5.arcgis.com/c7Oidgft2bQ65Tib/arcgis/rest/services/TrafficAccidents/FeatureServer"
+	url: "https://services5.arcgis.com/c7Oidgft2bQ65Tib/arcgis/rest/services/TrafficAccidents/FeatureServer",
+	renderer: {
+      type: "unique-value",
+      field: "Year_",
+	  uniqueValueInfos: [ {value: 2009, symbol: {
+											  type: "simple-marker",
+											  style: "circle",
+											  color: "yellow",
+											  size: "5px",
+											  outline: { color: "yellow", width: 1 }
+										  }
+	  } ],
+	  defaultSymbol: { type: "simple-marker",
+					   style: "circle",
+					   color: "pink",
+					   size: "5px",
+					   outline: { color: "pink", width: 1 }
+					  },
+    }
 });
 map.add(accidents);
 
@@ -91,6 +109,7 @@ $("#clear").click(function() {
   view.graphics.removeAll();
   geom = undefined;
 });
+
 
 
 });
