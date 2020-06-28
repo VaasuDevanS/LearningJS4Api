@@ -147,13 +147,10 @@ $("#process").click(function() {
 	  $("#featuretable").empty();
 	  filtered_layer = new FeatureLayer({ url: accidentsurl,
 	                                      definitionExpression: sql_query.slice(0, -4) });
-	  setTimeout(function(){
-	    featureTable = new FeatureTable({ layer: filtered_layer,
-				                          container: document.getElementById("featuretable") });
-      }, 5000); 
-	  
-      
+	  featureTable = new FeatureTable({ layer: filtered_layer,
+				                        container: document.getElementById("featuretable") });
 	})
+
 
   }
 });
