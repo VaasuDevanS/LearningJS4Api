@@ -11,13 +11,22 @@ body {
 }
 
 
-#map {
-    width: 550px;
-	height: 550px;
+#leftside {
 	float: left;
 }
 
 #content {
 	float: right;
-	padding-right: 330px;
+	padding-right: 370px;
 }
+
+#map {
+	width: 550px;
+	height: 330px;
+}
+
+#featuretable {
+	width: 550px;
+	height: 250px;
+}
+

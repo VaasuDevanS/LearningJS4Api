@@ -13,15 +13,19 @@ require([
   "esri/layers/FeatureLayer",
   "esri/widgets/Home",
   "esri/Graphic",
-  "esri/geometry/geometryEngine"
-], function(MapView, Map, FeatureLayer, Home, Graphic, geometryEngine) {
+  "esri/geometry/geometryEngine",
+  "esri/widgets/FeatureTable",
+  "esri/widgets/Sketch",
+  "esri/layers/GraphicsLayer",
+  "esri/tasks/support/Query",
+], function(MapView, Map, FeatureLayer, Home, Graphic, geometryEngine, FeatureTable,
+            Sketch, GraphicsLayer, Query) {
 	
 
-let geom = undefined;
-
-
 // Map
-var map = new Map({ basemap: "satellite" })
+const drawing_layer = new GraphicsLayer();
+const map = new Map({ basemap: "streets", layers: [drawing_layer] })
+const accidentsurl = "https://services5.arcgis.com/c7Oidgft2bQ65Tib/arcgis/rest/services/TrafficAccidents/FeatureServer"
 
 // Basemap
 var view = new MapView({
@@ -38,7 +42,7 @@ view.ui.add(homeBtn, "top-left");
 
 // Accident points
 var accidents = new FeatureLayer({
-	url: "https://services5.arcgis.com/c7Oidgft2bQ65Tib/arcgis/rest/services/TrafficAccidents/FeatureServer",
+	url: accidentsurl,
 	renderer: {
       type: "unique-value",
       field: "Year_",
@@ -52,62 +56,122 @@ var accidents = new FeatureLayer({
 	  } ],
 	  defaultSymbol: { type: "simple-marker",
 					   style: "circle",
-					   color: "pink",
+					   color: "green",
 					   size: "5px",
-					   outline: { color: "pink", width: 1 }
+					   outline: { color: "green", width: 1 }
 					  },
     }
 });
 map.add(accidents);
 
 
-// Select based on click (https://gis.stackexchange.com/a/350175)
-view.on("click", function(event) {  
-  view.hitTest(event).then(function(response) {
-      var firstLayer = response.results[0];
-      geom = firstLayer.graphic.geometry;
-      var symbol = {
-          type: "simple-marker",
-          style: "square",
-          color: "blue",
-          size: "8px",
-          outline: { color: [ 255, 0, 0 ], width: 2 }
-      };
-      var graphic = new Graphic(geom, symbol);
-      view.graphics.removeAll();
-      view.graphics.add(graphic);
-    });
+// FeatureTable
+featureTable = new FeatureTable({
+                     layer: accidents,
+				     container: document.getElementById("featuretable")
 });
 
 
-// Generate buffer function
-$("#genbuffer").click(function() {
-  if (geom == undefined) {
-	  alert("Select a point; then click buffer..");
-	  return;
-  }
-  var buffvalue = $("#buffervalue").val();
-  buffer = geometryEngine.geodesicBuffer(geom, buffvalue, "meters");
-  view.graphics.removeAll();
-  var bufferGraphic = new Graphic({
+// Sketch
+const sketch = new Sketch({
+          layer: drawing_layer,
+          view: view,
+          creationMode: "update"
+});
+view.ui.add(sketch, "top-right");
+
+
+
+// Process
+let geom = undefined, highlight = undefined;
+// Store the geometry
+sketch.on('create', function(evt){
+    if(evt.state === 'complete'){
+	  geom = evt.graphic.geometry;
+    }
+});
+
+$("#process").click(function() {
+	
+  if (geom != undefined) {
+	  
+    // Calculate the buffer and add to map
+    buffer = geometryEngine.geodesicBuffer(geom, $("#buffervalue").val(), "meters");
+    var bufferGraphic = new Graphic({
         geometry: buffer,
         symbol: {
-          type: "simple-fill",
-          color: "red",
+		  type: "simple-fill",
+          fill: "none",
           outline: {
-            color: "rgba(0,0,0,.5)",
-            width: 2
+            color: "cyan",
+            width: 1
           }
         }
-      });
-  view.graphics.add(bufferGraphic);
+    });
+    view.graphics.add(bufferGraphic);
+	
+	
+	// Create query
+	const query = accidents.createQuery();
+	query.geometry = buffer;
+    query.spatialRelationship = "intersects";
+	query.outFields = [ "*" ];
+	query.returnGeometry = false;
+	accidents.queryFeatures(query).then(function(response){
+		
+	  // Generate the chart
+	  var year_counts = {}, sql_query = "";
+	  var results = response.features;
+	  for (let i of results){ year_counts[i.attributes.Year_] = 0; }
+	  for (let i of results){
+		  year_counts[i.attributes.Year_] += 1;
+		  sql_query += "FID = " + i.attributes.FID + " or ";
+	  }
+	  new Chartist.Bar('.ct-chart1', {
+                labels: Object.keys(year_counts),
+                series: Object.values(year_counts)
+      }, { distributeSeries: true });
+	  
+	  
+	  // Zoom to buffer
+	  view.goTo(buffer);
+	  
+		
+	  // Highlight points
+	  view.whenLayerView(accidents).then(function(layerView){
+	    highlight = layerView.highlight(results);
+	  });
+	  
+	  
+	  // Filter attribute table
+	  $("#featuretable").empty();
+	  filtered_layer = new FeatureLayer({ url: accidentsurl,
+	                                      definitionExpression: sql_query.slice(0, -4) });
+	  setTimeout(function(){
+	    featureTable = new FeatureTable({ layer: filtered_layer,
+				                          container: document.getElementById("featuretable") });
+      }, 5000); 
+	  
+      
+	})
+
+  }
 });
 
 
 // Clear function
 $("#clear").click(function() {
+  
   view.graphics.removeAll();
+  drawing_layer.removeAll();
   geom = undefined;
+  $("#chart").empty();
+  highlight.remove();
+  $("#featuretable").empty();
+  featureTable = new FeatureTable({ layer: new FeatureLayer({ url: accidentsurl }),
+				                    container: document.getElementById("featuretable")
+  });
+  
 });
 
 
